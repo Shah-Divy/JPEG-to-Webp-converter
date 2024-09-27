@@ -27,8 +27,8 @@ function getNextFileName(folder) {
   return `output-image-${nextNumber}.webp`;
 }
 
-// Function to download image and convert it to WebP with high quality
-async function convertImageToWebp(url, folder) {
+// Function to download image and convert it to WebP with high quality and dynamic resizing
+async function convertImageToWebp(url, folder, resizeRatio = 1) {
   try {
     // Fetch the image from the provided URL
     const response = await axios({
@@ -43,28 +43,37 @@ async function convertImageToWebp(url, folder) {
     const image = sharp(response.data);
     const metadata = await image.metadata();
 
+    // Dynamically resize the image based on the original dimensions
+    const newWidth = Math.round(metadata.width * resizeRatio);
+    const newHeight = Math.round(metadata.height * resizeRatio);
+
     if (metadata.format === 'png') {
       // For PNG images, use lossless compression
       await image
+        .resize(newWidth, newHeight, { fit: sharp.fit.inside }) // Preserve aspect ratio
         .webp({ lossless: true }) // Enable lossless for PNG
         .toFile(outputImagePath);
     } else if (metadata.format === 'jpeg') {
       // For JPEG images, use high-quality compression
       await image
+        .resize(newWidth, newHeight, { fit: sharp.fit.inside }) // Preserve aspect ratio
         .webp({ quality: 100 }) // Max quality for JPEG
         .toFile(outputImagePath);
     } else {
       // Default to high quality if format is unknown
       await image
+        .resize(newWidth, newHeight, { fit: sharp.fit.inside }) // Preserve aspect ratio
         .webp({ quality: 100 })
         .toFile(outputImagePath);
     }
 
     console.log(`Image converted and saved as: ${outputImagePath}`);
+    console.log(`New dimensions: ${newWidth}x${newHeight}`);
   } catch (error) {
     console.error('Error converting image:', error);
   }
 }
 
-// Call the function with the image URL
-convertImageToWebp(imageUrl, outputFolder);
+// Call the function with the image URL and dynamic resize ratio
+const resizeRatio = 1; // For example, resize to 50% of the original size
+convertImageToWebp(imageUrl, outputFolder, resizeRatio);
