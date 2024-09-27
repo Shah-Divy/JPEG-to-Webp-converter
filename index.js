@@ -75,5 +75,5 @@ async function convertImageToWebp(url, folder, resizeRatio = 1) {
 }
 
 // Call the function with the image URL and dynamic resize ratio
-const resizeRatio = 1; // For example, resize to 50% of the original size
+const resizeRatio = 0.5; // For example, resize to 50% of the original size
 convertImageToWebp(imageUrl, outputFolder, resizeRatio);
