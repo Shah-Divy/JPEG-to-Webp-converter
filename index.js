@@ -62,14 +62,14 @@ async function convertImageToWebp(url, folder, resizeRatio = 1) {
     console.log(`New dimensions: ${newWidth}x${newHeight}`);
 
     return { 
-      success: true, 
+      process: true, 
       message: 'Image converted successfully', 
       path: outputImagePath, 
       dimensions: { width: newWidth, height: newHeight } // Return dimensions
     };
   } catch (error) {
     console.error('Error converting image:', error);
-    return { success: false, error: error.message };
+    return { process: false, error: error.message };
   }
 }
 
@@ -79,21 +79,21 @@ app.post('/convert-image', async (req, res) => {
 
   // Check if imageUrl and resizeRatio are provided
   if (!imageUrl || !resizeRatio) {
-    return res.status(400).json({ success: false, message: 'imageUrl and resizeRatio are required.' });
+    return res.status(400).json({ process: false, message: 'imageUrl and resizeRatio are required.' });
   }
 
   // Call the convertImageToWebp function
   const result = await convertImageToWebp(imageUrl, outputFolder, parseFloat(resizeRatio));
 
-  if (result.success) {
+  if (result.process) {
     res.json({ 
-      success: true, 
+      process: true, 
       message: result.message, 
       path: result.path, 
       dimensions: result.dimensions // Include dimensions in the response
     });
   } else {
-    res.status(500).json({ success: false, error: result.error });
+    res.status(500).json({ process: false, error: result.error });
   }
 });
 
